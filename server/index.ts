@@ -36,6 +36,33 @@ app.get("/api/asha/signed-url", async (_req, res) => {
   }
 });
 
+/**
+ * Speaks a line in Nia's voice (Zara) for the offline call, so it sounds the same as the live agent.
+ * The browser's built-in voice is only used when this isn't available.
+ */
+const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "OtEfb2LVzIE45wdYe54M";
+app.post("/api/tts", express.json({ limit: "8kb" }), async (req, res) => {
+  const text = String((req.body as { text?: string })?.text || "").slice(0, 600);
+  if (!API_KEY || !text.trim()) {
+    res.status(API_KEY ? 400 : 503).json({ error: API_KEY ? "No text" : "ELEVENLABS_API_KEY is not set" });
+    return;
+  }
+  try {
+    const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}?output_format=mp3_44100_64`, {
+      method: "POST",
+      headers: { "xi-api-key": API_KEY, "Content-Type": "application/json", Accept: "audio/mpeg" },
+      body: JSON.stringify({ text, model_id: "eleven_multilingual_v2", voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
+    });
+    if (!r.ok) {
+      res.status(502).json({ error: `ElevenLabs returned ${r.status}` });
+      return;
+    }
+    res.set("Content-Type", "audio/mpeg").send(Buffer.from(await r.arrayBuffer()));
+  } catch (e) {
+    res.status(502).json({ error: (e as Error).message });
+  }
+});
+
 /* ---------------- SOS: emergency call + WhatsApp to the family ---------------- */
 
 const TW_SID = process.env.TWILIO_ACCOUNT_SID || "";

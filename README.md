@@ -22,10 +22,13 @@ To run the production build on a single port: `npm run build && npm start`, then
 |---|---|
 | `ELEVENLABS_API_KEY` | From ElevenLabs → Developers → API keys. It stays on the server and is never sent to the browser. |
 | `ELEVENLABS_AGENT_ID` | The "Sister Nia – Elderly Care Nurse" agent: `agent_8401m4vje8w3fdjajg1v11y7z1ef` |
+| `ELEVENLABS_VOICE_ID` | Optional. Voice for the practice call, default Zara (`OtEfb2LVzIE45wdYe54M`), the same as the agent |
 | `PORT` | API port, default 8787 |
 | `TWILIO_*` | Optional. Lets the SOS button place real calls and WhatsApp messages. See *How the SOS button works*. |
 
-Without a key, the app still works. The call screen offers an **offline call**, which is scripted and uses the browser's Hindi voice.
+Without a key, the live call still works: the app connects to the public Nia agent directly by its ID (in Zara's voice). The agent has no sign-in, so anyone with its ID can use your ElevenLabs credits; turn on **Security → Enable authentication** for the agent before sharing the app widely, and run the server with your key.
+
+If the microphone isn't available, the call screen offers a scripted **practice call**. With the server running and a key set, it also speaks in Zara's voice (through `/api/tts`); otherwise it falls back to the browser's computer voice.
 
 ## Demo walkthrough (about 5 minutes)
 

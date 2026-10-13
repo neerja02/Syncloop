@@ -2,10 +2,13 @@ import { useConversation } from "@elevenlabs/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { buildDynamicVariables, makeCallTools, type CallKind, type ToolEvent } from "../../agent/callTools";
 import { esc } from "../../agent/flows";
-import { bestVoice, dailyScript, indianVoices, speak, stopSpeaking, weeklyScript, type SimStep } from "../../agent/simCall";
+import { bestVoice, dailyScript, indianVoices, speak, stopSpeaking, usingNiaVoice, weeklyScript, type SimStep } from "../../agent/simCall";
 import { judge, READ, readingReply } from "../../domain/catalog";
 import { getState, useStore } from "../../store/useStore";
 import { Icon } from "../ui/ui";
+
+/** The "Sister Nia – Elderly Care Nurse" ElevenLabs agent (voice: Zara). */
+const AGENT_ID = import.meta.env.VITE_ELEVENLABS_AGENT_ID || "agent_8401m4vje8w3fdjajg1v11y7z1ef";
 
 type Line = { who: "asha" | "me"; text: string };
 
@@ -141,16 +144,22 @@ function LiveCall({ kind, onFallback }: { kind: CallKind; onFallback: () => void
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
       } catch {
-        setError("Microphone permission is needed for a live call. Allow the microphone in the browser, or use the offline call.");
+        setError("Nia's live voice needs the microphone. Allow it in the browser (in the preview link it isn't available, so run the app on your computer), or use the practice call.");
         return;
       }
+      const dynamicVariables = buildDynamicVariables(getState().people.find((x) => x.id === personId)!, kind);
+      let signedUrl = "";
       try {
         const r = await fetch("/api/asha/signed-url");
         const body = await r.json().catch(() => ({}));
-        if (!r.ok || !body.signedUrl) throw new Error(body.error || "The voice server is not reachable. Is `npm run dev` running?");
-        conv.startSession({ signedUrl: body.signedUrl, dynamicVariables: buildDynamicVariables(getState().people.find((x) => x.id === personId)!, kind) });
+        if (r.ok && body.signedUrl) signedUrl = body.signedUrl;
+      } catch { /* no server: connect to the public agent directly */ }
+      try {
+        // With the server, the API key stays private (signed URL). Without it, the agent is public, so connect by ID.
+        if (signedUrl) await conv.startSession({ signedUrl, dynamicVariables });
+        else await conv.startSession({ agentId: AGENT_ID, connectionType: "websocket", dynamicVariables });
       } catch (e) {
-        setError((e as Error).message);
+        setError((e as Error).message || "Could not connect to Nia's voice.");
       }
     })();
     return () => { try { conv.endSession(); } catch { /* ignore */ } };
@@ -221,7 +230,7 @@ function SimCall({ kind, voicePick }: { kind: CallKind; voicePick?: string }) {
   useEffect(() => {
     if (!st) return;
     linesRef.current = [...linesRef.current, { who: "asha", text: st.show }];
-    speak(st.say, st.show, voicePick);
+    void speak(st.say, st.show, voicePick);
     if (st.input) setVal(READ[st.input].def);
   }, [i, st, voicePick]);
 
@@ -257,7 +266,7 @@ function SimCall({ kind, voicePick }: { kind: CallKind; voicePick?: string }) {
   return (
     <div className="absolute inset-0 z-30 flex flex-col bg-call px-5 pb-6 pt-5 text-center text-[#F1F6F4]">
       <div className="flex items-center justify-between text-[13px]">
-        <span className="rounded-full bg-white/10 px-2.5 py-1">Offline call · browser voice</span>
+        <span className="rounded-full bg-white/10 px-2.5 py-1">{usingNiaVoice() ? "Offline call · Nia's voice" : "Practice call · computer voice, not Nia's"}</span>
         <span className="tabular-nums opacity-80">On call · {timer.label}</span>
       </div>
       <div className="mx-auto mb-2 mt-4 grid h-20 w-20 place-items-center rounded-full bg-[#2A5A50] font-display text-[34px] font-semibold">N</div>

@@ -20,7 +20,7 @@ export interface SimStep {
 
 export function dailyScript(p: Person, tools: Tools): SimStep[] {
   const f = p.pr.first, steps: SimStep[] = [];
-  steps.push({ show: `Namaste ${f} ji, main Nia bol rahi hoon. Good morning! Kal raat neend kaisi aayi?`, say: `नमस्ते ${f} जी, मैं आशा बोल रही हूँ। गुड मॉर्निंग! कल रात नींद कैसी आई?`, opts: [["Achhi aayi", () => {}], ["Theek-thaak", () => {}]] });
+  steps.push({ show: `Namaste ${f} ji, main Nia bol rahi hoon. Good morning! Kal raat neend kaisi aayi?`, say: `नमस्ते ${f} जी, मैं निया बोल रही हूँ। गुड मॉर्निंग! कल रात नींद कैसी आई?`, opts: [["Achhi aayi", () => {}], ["Theek-thaak", () => {}]] });
   if (p.followup) {
     const fu = p.followup;
     const show = fu.key ? PROBLEMS[fu.key].text : fu.text;
@@ -91,7 +91,39 @@ export function bestVoice(pick?: string): SpeechSynthesisVoice | null {
   );
 }
 
-export function speak(say: string, show: string, pick?: string) {
+/* ---------- Nia's voice (Zara) through the server, when it's running ---------- */
+
+let audio: HTMLAudioElement | null = null;
+let serverVoice: boolean | null = null; // null = not tried yet
+let speakId = 0;
+
+/** Speaks a line: Nia's real voice (Zara, via /api/tts) if the server has a key, otherwise the browser's voice. */
+export async function speak(say: string, show: string, pick?: string) {
+  stopSpeaking();
+  const id = speakId;
+  if (serverVoice !== false) {
+    try {
+      const r = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: say }) });
+      if (!r.ok) throw new Error();
+      const url = URL.createObjectURL(await r.blob());
+      if (id !== speakId) return;
+      serverVoice = true;
+      audio = new Audio(url);
+      audio.onended = () => URL.revokeObjectURL(url);
+      await audio.play();
+      return;
+    } catch {
+      if (serverVoice === null) serverVoice = false;
+      if (id !== speakId) return;
+    }
+  }
+  browserSpeak(say, show, pick);
+}
+
+/** True once Nia's real voice has played in this page. */
+export const usingNiaVoice = () => serverVoice === true;
+
+function browserSpeak(say: string, show: string, pick?: string) {
   try {
     const s = window.speechSynthesis;
     if (!s) return;
@@ -107,5 +139,8 @@ export function speak(say: string, show: string, pick?: string) {
 }
 
 export function stopSpeaking() {
+  speakId++;
+  try { audio?.pause(); } catch { /* ignore */ }
+  audio = null;
   try { window.speechSynthesis?.cancel(); } catch { /* ignore */ }
 }
