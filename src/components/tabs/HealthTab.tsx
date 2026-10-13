@@ -94,7 +94,7 @@ export function HealthTab() {
         );
       })}
 
-      <Sec title="Doctor visits" sub="Asha lines up the tests before each visit and reminds the day before.">
+      <Sec title="Doctor visits" sub="Nia lines up the tests before each visit and reminds the day before.">
         <div className="panel">
           {p.pr.doctors.filter((d) => d.name).map((d, i) => (
             <div key={i} className={`flex items-start justify-between gap-3 py-2.5 ${i ? "border-t border-line" : ""}`}>
@@ -105,7 +105,7 @@ export function HealthTab() {
         </div>
       </Sec>
 
-      <Sec title="Prescriptions" sub="Grouped by doctor. Asha reads them; only doctors change them.">
+      <Sec title="Prescriptions" sub="Grouped by doctor. Nia reads them; only doctors change them.">
         {[...new Set(p.pr.meds.map((m) => m.dr))].map((dr) => {
           const ms = p.pr.meds.filter((m) => m.dr === dr);
           return (
@@ -146,12 +146,12 @@ export function HealthTab() {
       )}
 
       {p.transcripts.length > 0 && (
-        <Sec title="Call transcripts" sub="Saved from live calls with Asha.">
+        <Sec title="Call transcripts" sub="Saved from live calls with Nia.">
           {[...p.transcripts].reverse().slice(0, 5).map((t, i) => (
             <details key={i} className="rounded-2xl border border-line bg-surface px-3.5">
               <summary className="cursor-pointer list-none py-3"><strong>{t.kind}</strong> <span className="text-sm text-muted">· {shortDate(baseDate, t.day)} · {t.lines.length} lines</span></summary>
               <div className="flex flex-col gap-1.5 pb-3 text-[15px]">
-                {t.lines.map((l, k) => <p key={k}><b>{l.who === "asha" ? "Asha" : p.pr.first}:</b> {l.text}</p>)}
+                {t.lines.map((l, k) => <p key={k}><b>{l.who === "asha" ? "Nia" : p.pr.first}:</b> {l.text}</p>)}
               </div>
             </details>
           ))}

@@ -48,7 +48,7 @@ export function healthStatus(p: Person): Status[] {
   });
   const [a, t] = p.adherence;
   if (t) out.push({ k: "Medicines", s: a / t >= 0.9 ? "good" : "warn", t: `${Math.round((a / t) * 100)}% on time`, d: `${a} of ${t} doses last week` });
-  if (p.followup) out.push({ k: "Watching", s: "warn", t: p.followup.text.replace(/ tha$| thi$/, ""), d: "Asha follows up daily" });
+  if (p.followup) out.push({ k: "Watching", s: "warn", t: p.followup.text.replace(/ tha$| thi$/, ""), d: "Nia follows up daily" });
   const w = (p.readings.weight || []).slice(-1)[0];
   if (w) out.push({ k: "Weight", s: "same", t: "Steady", d: `${w[1]} kg` });
   return out;

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { isBusy, runChip, sendText, sharePrescription, submitReading, toggleDose, VOICE_SAMPLES } from "../../agent/flows";
+import { isBusy, runChip, sendText, shareFile, submitReading, toggleDose, VOICE_SAMPLES } from "../../agent/flows";
 import type { ChatItem, Dose, Person } from "../../domain/types";
 import { useStore } from "../../store/useStore";
 import { Badge, ChannelBadge, Icon, TickRow } from "../ui/ui";
@@ -122,12 +122,20 @@ export function TalkTab() {
   const [listening, setListening] = useState(false);
   const vi = useRef(0);
   const scroller = useRef<HTMLDivElement>(null);
+  const cameraInput = useRef<HTMLInputElement>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" });
   }, [p?.log.length, typing, p?.chips.length]);
 
   if (!p) return null;
+
+  const onFile = (via: "camera" | "upload") => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (f) shareFile(f.name, via);
+  };
 
   const mic = async () => {
     if (isBusy()) return;
@@ -143,7 +151,7 @@ export function TalkTab() {
         <div className="flex flex-col gap-2.5">
           {p.log.map((it, i) => <Item key={i} item={it} index={i} p={p} />)}
           {typing && (
-            <div className="flex gap-1.5 self-start rounded-[18px] border border-line bg-surface px-4 py-3" aria-label="Asha is typing">
+            <div className="flex gap-1.5 self-start rounded-[18px] border border-line bg-surface px-4 py-3" aria-label="Nia is typing">
               {[0, 1, 2].map((i) => <i key={i} className="h-[7px] w-[7px] animate-dot rounded-full bg-muted" style={{ animationDelay: `${i * 0.15}s` }} />)}
             </div>
           )}
@@ -155,12 +163,15 @@ export function TalkTab() {
         </div>
       )}
       <form
-        className="flex items-center gap-2 border-t border-line bg-surface px-3 py-2.5"
+        className="flex items-center gap-1.5 border-t border-line bg-surface px-3 py-2.5"
         onSubmit={(e) => { e.preventDefault(); if (!text.trim()) return; sendText(text.trim()); setText(""); }}
       >
-        <button type="button" aria-label="Show Asha a prescription" onClick={sharePrescription} className="grid h-[46px] w-[46px] flex-none place-items-center rounded-full border border-line bg-surface2 p-3">{Icon.camera}</button>
-        <input id="chat-input" value={text} onChange={(e) => setText(e.target.value)} placeholder={listening ? "Sun rahi hoon…" : "Asha se baat kijiye…"} aria-label="Message to Asha" className="min-w-0 flex-1 rounded-full border border-line bg-surface2 px-4 py-3" />
-        <button type="button" aria-label="Speak to Asha" onClick={mic} className={`grid h-[46px] w-[46px] flex-none place-items-center rounded-full border p-3 ${listening ? "animate-pulse border-bad bg-bad text-white" : "border-line bg-surface2"}`}>{Icon.mic}</button>
+        <input ref={cameraInput} type="file" accept="image/*" capture="environment" hidden onChange={onFile("camera")} />
+        <input ref={fileInput} type="file" accept="image/*,application/pdf" hidden onChange={onFile("upload")} />
+        <button type="button" aria-label="Take a photo of a prescription or report" title="Camera" onClick={() => cameraInput.current?.click()} className="grid h-[44px] w-[44px] flex-none place-items-center rounded-full border border-line bg-surface2 p-[11px]">{Icon.camera}</button>
+        <button type="button" aria-label="Upload a prescription or report (photo or PDF)" title="Upload" onClick={() => fileInput.current?.click()} className="grid h-[44px] w-[44px] flex-none place-items-center rounded-full border border-line bg-surface2 p-[11px]">{Icon.clip}</button>
+        <input id="chat-input" value={text} onChange={(e) => setText(e.target.value)} placeholder={listening ? "Sun rahi hoon…" : "Nia se baat kijiye…"} aria-label="Message to Nia" className="min-w-0 flex-1 rounded-full border border-line bg-surface2 px-4 py-3" />
+        <button type="button" aria-label="Speak to Nia" onClick={mic} className={`grid h-[46px] w-[46px] flex-none place-items-center rounded-full border p-3 ${listening ? "animate-pulse border-bad bg-bad text-white" : "border-line bg-surface2"}`}>{Icon.mic}</button>
         <button type="submit" aria-label="Send" className="grid h-[46px] w-[46px] flex-none place-items-center rounded-full bg-accent p-3 text-accent-ink">{Icon.send}</button>
       </form>
     </>

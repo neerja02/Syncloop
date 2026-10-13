@@ -1,6 +1,7 @@
 import { FREQ_ORDER } from "../../domain/catalog";
 import { visitText } from "../../domain/health";
 import { useStore } from "../../store/useStore";
+import { ContactsEditor } from "../ui/ContactsEditor";
 import { Badge, ChannelBadge } from "../ui/ui";
 
 const ALERTS = { missed: "A medicine is missed twice", range: "A reading is out of safe range", noanswer: "Two check-in calls go unanswered" };
@@ -16,6 +17,8 @@ export function ProfileTab() {
   const p = useStore((s) => s.current());
   const cur = useStore((s) => s.cur);
   const openOnboarding = useStore((s) => s.openOnboarding);
+  const mutate = useStore((s) => s.mutate);
+  const openSos = useStore((s) => s.openSos);
   if (!p) return null;
   const pr = p.pr;
   const groups = FREQ_ORDER.map((f) => [f, p.plan.filter((r) => r.freq === f)] as const).filter(([, rs]) => rs.length);
@@ -34,9 +37,19 @@ export function ProfileTab() {
         <button className="btn-ghost self-start" onClick={() => openOnboarding(cur)}>Edit profile</button>
       </section>
 
+      <section className="mb-6 flex flex-col gap-3" aria-labelledby="sos-title">
+        <h2 id="sos-title" className="sec-title">Emergency contacts</h2>
+        <p className="-mt-1.5 text-sm text-muted">
+          When {pr.first} ji presses the red <b className="text-bad">SOS</b> button, Nia calls these people and sends them a WhatsApp message with {pr.first} ji's location.
+          {!pr.sos?.some((c) => c.phone.trim()) && pr.cg.phone && ` Until you add someone, ${pr.cg.name} (family contact) is used.`}
+        </p>
+        <ContactsEditor idPrefix="p-sos" value={pr.sos ?? []} onChange={(v) => mutate((x) => void (x.pr.sos = v))} />
+        <button className="btn-ghost self-start border-bad text-bad" onClick={openSos}>Test the SOS button</button>
+      </section>
+
       <section className="mb-6 flex flex-col gap-3">
-        <h2 className="sec-title">Asha's care plan</h2>
-        <p className="-mt-1.5 text-sm text-muted">Built from {pr.first} ji's conditions. Asha collects each reading on its schedule.</p>
+        <h2 className="sec-title">Nia's care plan</h2>
+        <p className="-mt-1.5 text-sm text-muted">Built from {pr.first} ji's conditions. Nia collects each reading on its schedule.</p>
         {groups.map(([f, rs]) => (
           <div key={f} className="panel">
             <p className="cap mb-1">{f}</p>

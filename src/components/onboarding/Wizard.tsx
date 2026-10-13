@@ -5,13 +5,14 @@ import { EMPTY_PROFILE, sampleProfile } from "../../domain/samples";
 import type { AlertKey, Channel, Profile, Slot } from "../../domain/types";
 import { useStore } from "../../store/useStore";
 import { Avatar, ChannelBadge, Icon } from "../ui/ui";
+import { ContactsEditor } from "../ui/ContactsEditor";
 
 const STEPS = [
-  ["Who is Asha caring for?", "The basics, and who in the family Asha should contact."],
-  ["Health conditions", "Asha uses these to decide which readings to collect."],
+  ["Who is Nia caring for?", "The basics, and who in the family Nia should contact."],
+  ["Health conditions", "Nia uses these to decide which readings to collect."],
   ["Doctors and medicines", "Add each doctor, or scan a prescription."],
-  ["The care plan", "What Asha will check, how often, and how she asks."],
-  ["How Asha checks in", "Daily call time, reminders, and when to alert family."],
+  ["The care plan", "What Nia will check, how often, and how she asks."],
+  ["How Nia checks in", "Daily call time, reminders, and when to alert family."],
 ] as const;
 
 function Field({ label, id, children }: { label: string; id?: string; children: React.ReactNode }) {
@@ -59,12 +60,13 @@ export function Wizard() {
     if (step === 0) {
       if (!d.name.trim()) return setErr('Please enter a name, or tap "Fill sample".');
       setErr("");
-      up((x) => { if (!x.first) x.first = x.name.trim().split(" ")[0]; if (!x.rel) x.rel = x.first; if (!x.cg.name) x.cg.name = "Family"; });
+      up((x) => { if (!x.first) x.first = x.name.trim().split(" ")[0]; if (!x.rel) x.rel = x.first; if (!x.cg.name) x.cg.name = "Family"; if (!x.sos?.some((c) => c.phone.trim()) && x.cg.phone.trim()) x.sos = [{ ...x.cg }]; });
     }
     if (step < 4) { setStep(step + 1); body.current?.scrollTo({ top: 0 }); return; }
     const clean = structuredClone(d);
     clean.meds = clean.meds.filter((m) => m.name.trim());
     clean.doctors = clean.doctors.filter((x) => x.name.trim());
+    clean.sos = (clean.sos ?? []).filter((c) => c.phone.trim());
     if (obEdit === null) addPerson(clean);
     else { saveProfile(obEdit, clean); showToast("Profile saved. Care plan updated."); }
   };
@@ -101,7 +103,7 @@ export function Wizard() {
             )}
             {input("f-name", "Full name", (x) => x.name, (x, v) => (x.name = v), { autoComplete: "off" })}
             <div className="grid grid-cols-2 gap-2.5">
-              {input("f-first", "Asha calls them", (x) => x.first, (x, v) => (x.first = v), { placeholder: "e.g. Ramesh" })}
+              {input("f-first", "Nia calls them", (x) => x.first, (x, v) => (x.first = v), { placeholder: "e.g. Ramesh" })}
               {input("f-rel", "Shown in the app as", (x) => x.rel, (x, v) => (x.rel = v), { placeholder: "e.g. Papa" })}
             </div>
             <div className="grid grid-cols-2 gap-2.5">
@@ -109,13 +111,16 @@ export function Wizard() {
               {input("f-phone", "Phone (for calls)", (x) => x.phone, (x, v) => (x.phone = v), { inputMode: "tel" })}
             </div>
             <Field label="Gender"><Picks options={["Male", "Female", "Other"] as const} value={d.gender as "Male"} onToggle={(v) => up((x) => (x.gender = v))} /></Field>
-            <Field label="Language Asha speaks"><Picks options={["Hinglish", "Hindi", "Punjabi", "English"] as const} value={d.lang as "Hinglish"} onToggle={(v) => up((x) => (x.lang = v))} /></Field>
+            <Field label="Language Nia speaks"><Picks options={["Hinglish", "Hindi", "Punjabi", "English"] as const} value={d.lang as "Hinglish"} onToggle={(v) => up((x) => (x.lang = v))} /></Field>
             <p className="cap">Family contact</p>
             <div className="grid grid-cols-2 gap-2.5">
               {input("f-cg-name", "Name", (x) => x.cg.name, (x, v) => (x.cg.name = v))}
               {input("f-cg-rel", "Relation", (x) => x.cg.rel, (x, v) => (x.cg.rel = v))}
             </div>
             {input("f-cg-phone", "Phone", (x) => x.cg.phone, (x, v) => (x.cg.phone = v), { inputMode: "tel" })}
+            <p className="cap">Emergency contacts (SOS button)</p>
+            <p className="-mt-1.5 text-sm text-muted">When the SOS button is pressed, Nia calls and WhatsApps these people. If you leave this empty, the family contact is used.</p>
+            <ContactsEditor idPrefix="f-sos" value={d.sos ?? []} onChange={(v) => up((x) => (x.sos = v))} />
             {err && <p className="text-sm text-bad">{err}</p>}
           </>
         )}
@@ -134,7 +139,7 @@ export function Wizard() {
           <>
             <button type="button" onClick={scan} className="flex items-center gap-3 rounded-2xl border-[1.5px] border-dashed border-accent bg-accent-soft p-3.5 text-left font-bold text-accent">
               <span className="h-[26px] w-[26px] flex-none">{Icon.camera}</span>
-              <span>Scan a prescription<br /><span className="text-sm font-normal">Asha reads the doctor, medicines and timings</span></span>
+              <span>Scan a prescription<br /><span className="text-sm font-normal">Nia reads the doctor, medicines and timings</span></span>
             </button>
             <p className="cap">Doctors</p>
             {d.doctors.map((_dc, i) => (
@@ -186,7 +191,7 @@ export function Wizard() {
                   <div key={r.id} className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-0.5 py-2 ${i ? "border-t border-line" : ""}`}>
                     <strong>{r.name}</strong>
                     {r.ch === "Lab" ? <ChannelBadge ch="Lab" /> : (
-                      <select aria-label={`How Asha asks for ${r.name}`} className="rounded-lg border border-line bg-surface px-1.5 py-1 text-[13px]" value={r.ch} onChange={(e) => up((x) => (x.planCh[r.id] = e.target.value as Channel))}>
+                      <select aria-label={`How Nia asks for ${r.name}`} className="rounded-lg border border-line bg-surface px-1.5 py-1 text-[13px]" value={r.ch} onChange={(e) => up((x) => (x.planCh[r.id] = e.target.value as Channel))}>
                         <option>Call</option><option>WhatsApp</option>
                       </select>
                     )}
@@ -200,7 +205,7 @@ export function Wizard() {
               {d.doctors.filter((x) => x.name).map((x, i) => (
                 <div key={i} className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2.5 py-2 ${i ? "border-t border-line" : ""}`}>
                   <strong>{x.name}</strong><ChannelBadge ch="WhatsApp" />
-                  <span className="text-[13px] text-muted">{x.date ? `${visitText(x)}${x.tests ? ` · ${x.tests} 2 days before` : ""} · reminder the day before` : "Asha will ask the family to book"}</span>
+                  <span className="text-[13px] text-muted">{x.date ? `${visitText(x)}${x.tests ? ` · ${x.tests} 2 days before` : ""} · reminder the day before` : "Nia will ask the family to book"}</span>
                 </div>
               ))}
             </div>
@@ -238,7 +243,7 @@ export function Wizard() {
         <button type="button" className="btn-ghost" onClick={() => (step === 0 ? people.length && setOverlay(null) : setStep(step - 1))} disabled={step === 0 && !people.length}>
           {step === 0 ? "Cancel" : "Back"}
         </button>
-        <button type="button" className="btn" onClick={next}>{step === 4 ? (obEdit === null ? "Meet Asha" : "Save changes") : "Next"}</button>
+        <button type="button" className="btn" onClick={next}>{step === 4 ? (obEdit === null ? "Meet Nia" : "Save changes") : "Next"}</button>
       </div>
     </div>
   );

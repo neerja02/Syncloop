@@ -21,6 +21,12 @@ export interface Medicine {
   dr: string;
 }
 
+export interface Contact {
+  name: string;
+  rel: string;
+  phone: string;
+}
+
 export interface Profile {
   first: string;
   name: string;
@@ -29,7 +35,9 @@ export interface Profile {
   gender: string;
   lang: string;
   phone: string;
-  cg: { name: string; rel: string; phone: string };
+  cg: Contact;
+  /** Who the SOS button calls and WhatsApps. Older saved profiles may not have it. */
+  sos?: Contact[];
   conditions: string[];
   allergies: string;
   history: string;

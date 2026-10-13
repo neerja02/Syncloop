@@ -4,7 +4,7 @@ export const SLOTS: Slot[] = ["Early morning", "Morning", "Afternoon", "Night"];
 export const CONDITIONS = ["Diabetes", "High BP", "Cholesterol", "Thyroid", "Heart", "Arthritis", "Kidney", "Asthma"];
 export const FREQ_ORDER = ["Daily", "Weekly", "Monthly", "Every 3 months", "Every 6 months", "Every 12 months"];
 
-/** What each condition needs Asha to track, how often, and how she collects it. */
+/** What each condition needs Nia to track, how often, and how she collects it. */
 export const CATALOG: Record<string, ReadingDef[]> = {
   "High BP": [{ id: "bp", name: "Blood pressure", unit: "mmHg", freq: "Daily", when: "Morning, on the check-in call", ch: "Call", def: "132/84" }],
   Diabetes: [
@@ -86,7 +86,7 @@ export function docFor(p: Person, re: RegExp): string {
   return (p.pr.doctors.find((d) => re.test(d.sp)) || p.pr.doctors[0] || { name: "doctor sahab" }).name;
 }
 
-/** Asha's reply to a reading, for chat (`chat`), call captions (`show`) and Hindi voice (`say`). */
+/** Nia's reply to a reading, for chat (`chat`), call captions (`show`) and Hindi voice (`say`). */
 export function readingReply(p: Person, rid: string, res: JudgeResult) {
   const r = READ[rid];
   const v = valueText(rid, res);

@@ -58,7 +58,7 @@ export function CallScreen() {
 
   const decline = () => {
     const s = getState();
-    s.push({ t: "note", ic: "☎", x: `Missed ${kind === "weekly" ? "weekly check" : "check-in"} call. Asha will try again in 30 minutes, then message ${esc(p.pr.cg.name)} if there's no answer.` });
+    s.push({ t: "note", ic: "☎", x: `Missed ${kind === "weekly" ? "weekly check" : "check-in"} call. Nia will try again in 30 minutes, then message ${esc(p.pr.cg.name)} if there's no answer.` });
     s.setOverlay(null);
     s.setTab("talk");
   };
@@ -69,8 +69,8 @@ export function CallScreen() {
   return (
     <div className="absolute inset-0 z-30 flex flex-col bg-call px-5 pb-6 pt-6 text-center text-[#F1F6F4]">
       <p className="text-[15px] opacity-75">Incoming call · {kind === "weekly" ? "Weekly health check" : "Daily check-in"}</p>
-      <div className="mx-auto mb-3 mt-6 grid h-24 w-24 animate-ring place-items-center rounded-full bg-[#2A5A50] font-display text-[42px] font-semibold">A</div>
-      <h2 className="font-display text-[27px] font-semibold">Sister Asha</h2>
+      <div className="mx-auto mb-3 mt-6 grid h-24 w-24 animate-ring place-items-center rounded-full bg-[#2A5A50] font-display text-[42px] font-semibold">N</div>
+      <h2 className="font-display text-[27px] font-semibold">Sister Nia</h2>
       <p className="mt-1 text-[15px] opacity-75">{kind === "weekly" ? p.pr.checkin.weekly : p.pr.checkin.call} · calling {p.pr.name}</p>
 
       <div className="mt-auto flex justify-around">
@@ -162,7 +162,7 @@ function LiveCall({ kind, onFallback }: { kind: CallKind; onFallback: () => void
     finish();
   };
 
-  const lastAsha = [...lines].reverse().find((l) => l.who === "asha");
+  const lastNia = [...lines].reverse().find((l) => l.who === "asha");
   const lastMe = [...lines].reverse().find((l) => l.who === "me");
   const connecting = conv.status !== "connected" && !error;
 
@@ -172,9 +172,9 @@ function LiveCall({ kind, onFallback }: { kind: CallKind; onFallback: () => void
         <span className="rounded-full bg-white/10 px-2.5 py-1">Live AI voice · ElevenLabs</span>
         <span className="tabular-nums opacity-80">{connecting ? "Connecting…" : `On call · ${timer.label}`}</span>
       </div>
-      <div className={`mx-auto mb-2 mt-5 grid h-20 w-20 place-items-center rounded-full bg-[#2A5A50] font-display text-[34px] font-semibold ${conv.isSpeaking ? "animate-ring" : ""}`}>A</div>
-      <h2 className="font-display text-[26px] font-semibold">Sister Asha</h2>
-      <p className="text-[13px] opacity-70">{error ? "Call could not continue" : connecting ? "Connecting the call…" : conv.isSpeaking ? "Asha is speaking" : "Listening…"}</p>
+      <div className={`mx-auto mb-2 mt-5 grid h-20 w-20 place-items-center rounded-full bg-[#2A5A50] font-display text-[34px] font-semibold ${conv.isSpeaking ? "animate-ring" : ""}`}>N</div>
+      <h2 className="font-display text-[26px] font-semibold">Sister Nia</h2>
+      <p className="text-[13px] opacity-70">{error ? "Call could not continue" : connecting ? "Connecting the call…" : conv.isSpeaking ? "Nia is speaking" : "Listening…"}</p>
 
       {error ? (
         <div className="mt-6 rounded-2xl bg-white/10 p-4 text-left text-[15px]">
@@ -186,11 +186,11 @@ function LiveCall({ kind, onFallback }: { kind: CallKind; onFallback: () => void
         </div>
       ) : (
         <>
-          <p className="mt-5 min-h-[96px] font-display text-[20px] leading-snug" aria-live="polite">{lastAsha ? `“${lastAsha.text}”` : ""}</p>
+          <p className="mt-5 min-h-[96px] font-display text-[20px] leading-snug" aria-live="polite">{lastNia ? `“${lastNia.text}”` : ""}</p>
           {lastMe && <p className="mt-2 text-[15px] opacity-75">{p.pr.first} ji: “{lastMe.text}”</p>}
           {events.length > 0 && (
             <div className="mt-4 rounded-2xl bg-white/10 p-3 text-left text-sm">
-              <p className="mb-1 text-[11px] font-bold uppercase tracking-wider opacity-70">What Asha updated</p>
+              <p className="mb-1 text-[11px] font-bold uppercase tracking-wider opacity-70">What Nia updated</p>
               {events.map((e, i) => <p key={i} className={e.tone === "bad" ? "text-[#FFB4A3]" : ""}>{e.tone === "bad" ? "⚠" : "✓"} {e.text}</p>)}
             </div>
           )}
@@ -260,8 +260,8 @@ function SimCall({ kind, voicePick }: { kind: CallKind; voicePick?: string }) {
         <span className="rounded-full bg-white/10 px-2.5 py-1">Offline call · browser voice</span>
         <span className="tabular-nums opacity-80">On call · {timer.label}</span>
       </div>
-      <div className="mx-auto mb-2 mt-4 grid h-20 w-20 place-items-center rounded-full bg-[#2A5A50] font-display text-[34px] font-semibold">A</div>
-      <h2 className="font-display text-[26px] font-semibold">Sister Asha</h2>
+      <div className="mx-auto mb-2 mt-4 grid h-20 w-20 place-items-center rounded-full bg-[#2A5A50] font-display text-[34px] font-semibold">N</div>
+      <h2 className="font-display text-[26px] font-semibold">Sister Nia</h2>
       <p className="mt-4 min-h-[110px] font-display text-[20px] leading-snug" aria-live="polite">“{st.show}”</p>
       <div className="mt-auto flex flex-col gap-2.5">
         {st.input ? (
@@ -271,7 +271,7 @@ function SimCall({ kind, voicePick }: { kind: CallKind; voicePick?: string }) {
               <span className="text-sm opacity-70">{READ[st.input].unit}</span>
               <button className="rounded-full bg-white px-4 py-2.5 font-bold text-[#10201C]" type="submit">Bata diya</button>
             </form>
-            <p className="text-[13px] opacity-70">{p.pr.first} ji speaks the number; Asha writes it down</p>
+            <p className="text-[13px] opacity-70">{p.pr.first} ji speaks the number; Nia writes it down</p>
           </>
         ) : (
           st.opts?.map(([label, fn]) => (

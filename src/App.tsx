@@ -10,7 +10,7 @@ export default function App() {
   const openOnboarding = useStore((s) => s.openOnboarding);
   const setOverlay = useStore((s) => s.setOverlay);
 
-  // First visit: setup. Returning visit: straight to Asha (and close any half-open call).
+  // First visit: setup. Returning visit: straight to Nia (and close any half-open call).
   useEffect(() => {
     if (!people && overlay !== "ob") openOnboarding(null);
     if (people && (overlay === "call" || overlay === "wa")) setOverlay(null);

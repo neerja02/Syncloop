@@ -1,5 +1,5 @@
 /**
- * Asha's scripted conversation engine for the in-app chat.
+ * Nia's scripted conversation engine for the in-app chat.
  * Everything stored in chat history is plain data (no functions), so the
  * conversation survives a page refresh. Chips and reading cards refer to
  * actions by name; ACTIONS below runs them.
@@ -7,6 +7,7 @@
 import { docFor, judge, PROBLEMS, READ, readingReply, SLOTS, valueText, type ProblemKey } from "../domain/catalog";
 import { dayLabel } from "../domain/dates";
 import { has, hon, nextVisit, visitText } from "../domain/health";
+import { sosContacts } from "../domain/emergency";
 import { buildDoses } from "../domain/samples";
 import type { ChatItem, Chip, Person } from "../domain/types";
 import { getState } from "../store/useStore";
@@ -66,7 +67,7 @@ const feelChips = (): Chip[] => [
 async function firstMeeting() {
   const p = P(), pr = p.pr;
   getState().mutate((x) => void (x.met = true));
-  await nurse(`Namaste ${esc(hon(p))} 🙏 Main Asha hoon, aapki nurse.`);
+  await nurse(`Namaste ${esc(hon(p))} 🙏 Main Nia hoon, aapki nurse.`);
   const docs = pr.doctors.filter((d) => d.name).map((d) => esc(d.name)).join(", ");
   await nurse(`${esc(pr.cg.name || "Aapke ghar walon")} ne aapki saari details mujhe de di hain: ${esc(pr.conditions.join(", ").replace("High BP", "BP") || "aapki health")}${docs ? `, aur ${docs} ki dawaiyan` : ""}.`);
   const daily = p.plan.filter((r) => r.freq === "Daily").map((r) => r.name.toLowerCase());
@@ -93,7 +94,7 @@ async function problem(k: ProblemKey) {
   const pr = PROBLEMS[k];
   getState().mutate((x) => void (x.followup = { key: k, text: pr.text }));
   await nurse("Oh ho. Chaliye, aaj yeh try kijiye:");
-  push({ t: "card", kind: "tips", title: "Asha ki salah", items: pr.tips.map((t) => ({ text: t[0], sub: t[1] || undefined })) });
+  push({ t: "card", kind: "tips", title: "Nia ki salah", items: pr.tips.map((t) => ({ text: t[0], sub: t[1] || undefined })) });
   await nurse("Kal subah main poochhungi ki farak pada ya nahi. Agar dard bahut badh jaye toh mujhe turant bataiye.");
   await medsPrompt();
 }
@@ -176,7 +177,7 @@ export function logReading(personId: string, rid: string, value: string) {
 }
 
 export function familyNote(p: Person, text: string, urgent = true) {
-  getState().push({ t: "note", ic: urgent ? "!" : "✓", x: `Asha messaged <b>${esc(p.pr.cg.name || "family")}</b>${p.pr.cg.phone ? ` (${esc(p.pr.cg.phone)})` : ""}: “${esc(text)}”` }, p.id);
+  getState().push({ t: "note", ic: urgent ? "!" : "✓", x: `Nia messaged <b>${esc(p.pr.cg.name || "family")}</b>${p.pr.cg.phone ? ` (${esc(p.pr.cg.phone)})` : ""}: “${esc(text)}”` }, p.id);
 }
 
 export function submitReading(index: number, value: string) {
@@ -254,7 +255,7 @@ const ACTIONS: Record<string, (arg?: string) => Promise<void>> = {
   },
   "sym:today": async () => {
     await nurse("Thoda aaraam kijiye, do glass paani pijiye. Main dopahar 1 baje phir poochhungi. Agar bukhaar 101°F se zyada ho ya chakkar aaye toh mujhe bataiye.");
-    push({ t: "note", ic: "↻", x: "Asha will check on this at <b>1:00 pm</b>." });
+    push({ t: "note", ic: "↻", x: "Nia will check on this at <b>1:00 pm</b>." });
   },
   "sym:days": async () => {
     await nurse(`2–3 din kaafi hai, doctor ko dikhana chahiye. ${esc(P().pr.cg.name)} ko bolun?`);
@@ -265,6 +266,8 @@ const ACTIONS: Record<string, (arg?: string) => Promise<void>> = {
     await nurse("Bata diya.");
   },
   wrapUp: async () => wrapUp(),
+  "doc:rx": async () => readPrescription(),
+  "doc:report": async () => readReport(),
 };
 
 export function runChip(i: number) {
@@ -289,8 +292,9 @@ async function handle(text: string) {
   const s = text.toLowerCase(), p = P();
   if (/chest|seene|saans|breath|gir gay|fell|faint|behosh|unconscious|stroke|lakwa/.test(s)) {
     push({ t: "alert", x: `<strong>Abhi madad lijiye.</strong>Turant <b style="font-size:24px">112</b> pe call kijiye ya paas wale ko bulaiye. Akele mat rahiye.` });
-    push({ t: "note", ic: "!", x: `Asha called <b>${esc(p.pr.cg.name)}</b> (${esc(p.pr.cg.phone)}) and shared the location.` });
-    await nurse(`${esc(p.pr.cg.name)} ko call kar diya hai. Main yahin hoon.`);
+    const first = sosContacts(p.pr)[0];
+    await nurse(`${first ? `${esc(first.name || "Family")} ko call aur WhatsApp kar rahi hoon.` : "Aapka koi emergency contact save nahi hai, 112 pe call kijiye."} Main yahin hoon.`, 500);
+    getState().openSos();
     return;
   }
   const bp = s.match(/(\d{2,3})\s*(?:\/|by|bata)\s*(\d{2,3})/);
@@ -337,7 +341,7 @@ async function handle(text: string) {
       await nurse("Aapki latest report:");
       push({ t: "card", kind: "report", ri: 0 });
       await nurse("Agli doctor visit pe yeh saath le jaana hai, main yaad dila dungi.");
-    } else await nurse("Abhi koi report nahi hai. Camera button se report ki photo bhej dijiye, main padh ke bata dungi.");
+    } else await nurse("Abhi koi report nahi hai. Camera ya upload button se report bhej dijiye, main padh ke bata dungi.");
     return;
   }
   if (/doctor|visit|appointment|checkup|check-up/.test(s)) {
@@ -359,24 +363,54 @@ async function handle(text: string) {
 
 /* ---------------- prescription photo (simulated reading) ---------------- */
 
+/** A photo from the camera or a file from the phone: ask what it is, then read it. */
+export function shareFile(name: string, via: "camera" | "upload") {
+  if (busy) return getState().showToast("Nia is still talking. Please send it again in a moment.");
+  chips([]);
+  me(via === "camera" ? `📷 Photo: ${name}` : `📎 ${name}`);
+  void locked(async () => {
+    await nurse("Mil gaya 👍 Yeh kya hai?", 600);
+    chips([
+      { label: "💊 Doctor ki parchi", action: "doc:rx" },
+      { label: "🧪 Test report", action: "doc:report" },
+    ]);
+  });
+}
+
+async function readReport() {
+  const p = P();
+  await nurse("Report padh rahi hoon…", 900);
+  if (p.reports[0]) {
+    push({ t: "card", kind: "report", ri: 0 });
+    await nurse("Maine yeh aapke Health tab mein save kar di hai. Agli doctor visit pe saath le jaana hai, main yaad dila dungi. Report ka matlab doctor sahab hi batayenge.");
+  } else {
+    await nurse(`Report save kar li hai. Main ${esc(p.pr.cg.name || "family")} ko bhej deti hoon taaki woh doctor ko dikha sakein.`);
+    familyNote(p, `${p.pr.first} ji ne nayi test report bheji hai, please doctor ko dikha dijiye.`, false);
+  }
+}
+
 export function sharePrescription() {
   void locked(async () => {
     chips([]);
     me("📷 Prescription ki photo");
-    await nurse("Padh rahi hoon…", 900);
-    const p = P();
-    const docName = p.pr.doctors.find((d) => /Heart|BP/i.test(d.sp))?.name || p.pr.doctors[0]?.name || "Doctor";
-    if (!p.pr.meds.some((m) => m.name === "Ecosprin")) {
-      getState().mutate((x) => {
-        x.pr.meds.push({ name: "Ecosprin", dose: "75 mg", times: ["Afternoon"], note: "Heart · after lunch", dr: docName });
-        x.doses = buildDoses(x.pr, x.doses);
-      });
-    }
-    const same = P().pr.meds.filter((m) => m.dr === docName && m.name !== "Ecosprin");
-    push({ t: "card", kind: "rx", dr: `${docName} · today`, lines: [...same.map((m) => [`${m.name} ${m.dose}`, m.times.join(", ").toLowerCase(), "same", "No change"] as [string, string, "same", string]), ["Ecosprin 75 mg", "after lunch", "warn", "New"]] });
-    await nurse(`Yeh <b>${esc(docName)}</b> ki aaj ki parchi hai. Purani dawaiyan same hain, ek nayi add hui hai: <b>Ecosprin 75 mg</b>, lunch ke baad.`);
-    await nurse("Maine isse aapki daily list mein daal diya hai aur roz 1:30 baje WhatsApp pe yaad dila dungi. Yeh khaali pet mat lijiyega.");
+    await readPrescription();
   });
+}
+
+async function readPrescription() {
+  await nurse("Padh rahi hoon…", 900);
+  const p = P();
+  const docName = p.pr.doctors.find((d) => /Heart|BP/i.test(d.sp))?.name || p.pr.doctors[0]?.name || "Doctor";
+  if (!p.pr.meds.some((m) => m.name === "Ecosprin")) {
+    getState().mutate((x) => {
+      x.pr.meds.push({ name: "Ecosprin", dose: "75 mg", times: ["Afternoon"], note: "Heart · after lunch", dr: docName });
+      x.doses = buildDoses(x.pr, x.doses);
+    });
+  }
+  const same = P().pr.meds.filter((m) => m.dr === docName && m.name !== "Ecosprin");
+  push({ t: "card", kind: "rx", dr: `${docName} · today`, lines: [...same.map((m) => [`${m.name} ${m.dose}`, m.times.join(", ").toLowerCase(), "same", "No change"] as [string, string, "same", string]), ["Ecosprin 75 mg", "after lunch", "warn", "New"]] });
+  await nurse(`Yeh <b>${esc(docName)}</b> ki aaj ki parchi hai. Purani dawaiyan same hain, ek nayi add hui hai: <b>Ecosprin 75 mg</b>, lunch ke baad.`);
+  await nurse("Maine isse aapki daily list mein daal diya hai aur roz 1:30 baje WhatsApp pe yaad dila dungi. Yeh khaali pet mat lijiyega.");
 }
 
 /* ---------------- test rail: high reading ---------------- */

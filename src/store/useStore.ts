@@ -6,7 +6,7 @@ import { buildDoses, makePerson } from "../domain/samples";
 import type { ChatItem, Chip, Person, Profile } from "../domain/types";
 
 export type Tab = "talk" | "today" | "health" | "profile";
-export type Overlay = null | "call" | "wa" | "ob";
+export type Overlay = null | "call" | "wa" | "ob" | "sos";
 
 interface Toast { html: string; undo?: () => void; id: number }
 
@@ -34,6 +34,7 @@ interface State {
   setTab: (t: Tab) => void;
   setOverlay: (o: Overlay) => void;
   openCall: (kind: "daily" | "weekly") => void;
+  openSos: () => void;
   setRealVoice: (v: boolean) => void;
   openOnboarding: (edit: number | null) => void;
   addPerson: (pr: Profile) => void;
@@ -77,6 +78,7 @@ export const useStore = create<State>()(
       setTab: (tab) => set({ tab }),
       setOverlay: (overlay) => set({ overlay }),
       openCall: (callKind) => set({ overlay: "call", callKind }),
+      openSos: () => set({ overlay: "sos" }),
       setRealVoice: (realVoice) => set({ realVoice }),
       openOnboarding: (obEdit) => set({ overlay: "ob", obEdit }),
       addPerson: (pr) => set((s) => ({ people: [...s.people, makePerson(pr)], cur: s.people.length, overlay: null, tab: "talk" })),

@@ -5,6 +5,7 @@ import type { Dose, Lab, Person, Profile, ReadingLog, Report } from "./types";
 export const EMPTY_PROFILE: Profile = {
   first: "", name: "", rel: "", age: "", gender: "", lang: "Hinglish", phone: "",
   cg: { name: "", rel: "", phone: "" },
+  sos: [],
   conditions: [], allergies: "", history: "",
   doctors: [{ name: "", sp: "", date: "", time: "", tests: "" }],
   meds: [],
@@ -18,6 +19,7 @@ export function sampleProfile(key: "ramesh" | "kamla", base: string): Profile {
     return {
       first: "Ramesh", name: "Ramesh Sharma", rel: "Papa", age: "72", gender: "Male", lang: "Hinglish", phone: "98140 23456",
       cg: { name: "Neha", rel: "Daughter", phone: "98722 11890" },
+      sos: [{ name: "Neha", rel: "Daughter", phone: "98722 11890" }, { name: "Rohit", rel: "Son", phone: "98150 44321" }],
       conditions: ["Diabetes", "High BP", "Cholesterol", "Arthritis"],
       allergies: "Sulfa medicines",
       history: "Knee pain in both knees since 2023, left is worse. Gallbladder removed in 2015. Does not smoke.",
@@ -37,6 +39,7 @@ export function sampleProfile(key: "ramesh" | "kamla", base: string): Profile {
   return {
     first: "Kamla", name: "Kamla Sharma", rel: "Mummy", age: "68", gender: "Female", lang: "Hinglish", phone: "98140 23457",
     cg: { name: "Neha", rel: "Daughter", phone: "98722 11890" },
+    sos: [{ name: "Neha", rel: "Daughter", phone: "98722 11890" }],
     conditions: ["Thyroid", "High BP"],
     allergies: "None known",
     history: "Thyroid since 2019, dose changed in July. Lower back pain on and off.",

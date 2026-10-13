@@ -110,7 +110,7 @@ export function WhatsAppScreen() {
       <div className="flex items-center gap-2.5 bg-wa-bar px-3 py-3 text-[#F1F6F4]">
         <button aria-label="Back to app" onClick={() => setOverlay(null)} className="grid h-10 w-10 place-items-center p-2.5">{Icon.back}</button>
         <Avatar size={38} />
-        <div><strong className="block text-[17px]">Sister Asha</strong><span className="text-[13px] opacity-80">Chatting with {p.pr.name}</span></div>
+        <div><strong className="block text-[17px]">Sister Nia</strong><span className="text-[13px] opacity-80">Chatting with {p.pr.name}</span></div>
       </div>
       <div ref={scroller} className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-4">
         <span className="self-center rounded-lg bg-warm-soft px-2.5 py-0.5 text-xs font-bold text-warm">Simulated WhatsApp</span>

@@ -1,5 +1,5 @@
 /**
- * What happens in the app when Asha (the ElevenLabs voice agent) calls one of her
+ * What happens in the app when Nia (the ElevenLabs voice agent) calls one of her
  * tools during a live call, plus the dynamic variables sent at the start of a call.
  * Tool names and parameters match the tools configured on the ElevenLabs agent.
  */
@@ -20,7 +20,7 @@ export function buildDynamicVariables(p: Person, kind: CallKind): Record<string,
       ? `weekly health check: sleep, pain, appetite, mood${has(p, "feet") ? ", feet" : ""}${has(p, "pain") ? ", knee pain score 0-10" : ""}, weight`
       : dueToday(p, s.baseDate, s.day).filter((r) => r.ch === "Call" && READ[r.id] && !loggedToday(p, r.id, s.day)).map((r) => r.name).join(", ");
   const v = nextVisit(p, s.baseDate, s.day);
-  const fu = p.followup ? `${p.followup.key ? PROBLEMS[p.followup.key].chat : p.followup.text}${p.followup.advice ? `; Asha suggested: ${p.followup.advice}` : ""}` : "none";
+  const fu = p.followup ? `${p.followup.key ? PROBLEMS[p.followup.key].chat : p.followup.text}${p.followup.advice ? `; Nia suggested: ${p.followup.advice}` : ""}` : "none";
   return {
     patient_name: pr.first || pr.name || "aap",
     relation: pr.rel || "parent",
@@ -79,7 +79,7 @@ export function makeCallTools(personId: string, _kind: CallKind, onEvent: (e: To
     },
     alert_family: ({ severity, reason }: { severity: string; reason: string }) => {
       const p = person();
-      getState().push({ t: "note", ic: "!", x: `<b>${severity === "emergency" ? "Emergency" : "Urgent"}:</b> Asha alerted <b>${esc(p.pr.cg.name)}</b> (${esc(p.pr.cg.phone)}): “${esc(reason)}”` }, personId);
+      getState().push({ t: "note", ic: "!", x: `<b>${severity === "emergency" ? "Emergency" : "Urgent"}:</b> Nia alerted <b>${esc(p.pr.cg.name)}</b> (${esc(p.pr.cg.phone)}): “${esc(reason)}”` }, personId);
       onEvent({ text: `${p.pr.cg.name || "Family"} alerted: ${reason}`, tone: "bad" });
     },
     note_followup: ({ problem, advice }: { problem: string; advice: string }) => {

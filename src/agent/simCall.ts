@@ -20,7 +20,7 @@ export interface SimStep {
 
 export function dailyScript(p: Person, tools: Tools): SimStep[] {
   const f = p.pr.first, steps: SimStep[] = [];
-  steps.push({ show: `Namaste ${f} ji, main Asha bol rahi hoon. Good morning! Kal raat neend kaisi aayi?`, say: `नमस्ते ${f} जी, मैं आशा बोल रही हूँ। गुड मॉर्निंग! कल रात नींद कैसी आई?`, opts: [["Achhi aayi", () => {}], ["Theek-thaak", () => {}]] });
+  steps.push({ show: `Namaste ${f} ji, main Nia bol rahi hoon. Good morning! Kal raat neend kaisi aayi?`, say: `नमस्ते ${f} जी, मैं आशा बोल रही हूँ। गुड मॉर्निंग! कल रात नींद कैसी आई?`, opts: [["Achhi aayi", () => {}], ["Theek-thaak", () => {}]] });
   if (p.followup) {
     const fu = p.followup;
     const show = fu.key ? PROBLEMS[fu.key].text : fu.text;
@@ -38,7 +38,7 @@ export function dailyScript(p: Person, tools: Tools): SimStep[] {
   const s = getState(), v = nextVisit(p, s.baseDate, s.day);
   if (v && v.days <= 10)
     steps.push({ show: `Aur yaad hai na, ${visitText(v.d)} ko ${v.d.name} ke paas jaana hai. Ek din pehle main yaad dila dungi.`, say: `और याद है ना, ${visitText(v.d)} को ${v.d.name} के पास जाना है। एक दिन पहले मैं याद दिला दूँगी।`, opts: [["Haan, yaad hai", () => {}]] });
-  steps.push({ show: `Theek hai ${f} ji, apna khayal rakhiyega. Raat ko WhatsApp pe dawai ka reminder bhejungi. Namaste!`, say: `ठीक है ${f} जी, अपना ख़याल रखियेगा। रात को व्हाट्सऐप पे दवाई का रिमाइंडर भेजूँगी। नमस्ते!`, opts: [["Namaste, Asha", () => {}]], end: true });
+  steps.push({ show: `Theek hai ${f} ji, apna khayal rakhiyega. Raat ko WhatsApp pe dawai ka reminder bhejungi. Namaste!`, say: `ठीक है ${f} जी, अपना ख़याल रखियेगा। रात को व्हाट्सऐप पे दवाई का रिमाइंडर भेजूँगी। नमस्ते!`, opts: [["Namaste, Nia", () => {}]], end: true });
   return steps;
 }
 
@@ -57,7 +57,7 @@ export function weeklyScript(p: Person, tools: Tools): SimStep[] {
   steps.push({
     show: `Shukriya ${f} ji. Is hafte ki report main ${p.pr.cg.name} ko bhej rahi hoon. Apna khayal rakhiye!`,
     say: `शुक्रिया ${f} जी। इस हफ़्ते की रिपोर्ट मैं ${p.pr.cg.name} को भेज रही हूँ। अपना ख़याल रखिए!`,
-    opts: [["Shukriya, Asha", () => tools.save_weekly_check(a as never)]],
+    opts: [["Shukriya, Nia", () => tools.save_weekly_check(a as never)]],
     end: true,
   });
   return steps;

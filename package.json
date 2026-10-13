@@ -1,7 +1,7 @@
 {
-  "name": "sister-asha",
+  "name": "sister-nia",
   "version": "0.1.0",
-  "description": "Sister Asha: an AI health nurse for elderly people. Live Hinglish voice check-ins (ElevenLabs), medicine tracking, readings and family alerts.",
+  "description": "Sister Nia: an AI health nurse for elderly people. Live Hinglish voice check-ins (ElevenLabs), medicine tracking, readings and family alerts.",
   "scripts": {
     "dev": "concurrently -k -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
     "dev:web": "vite",
