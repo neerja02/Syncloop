@@ -1,0 +1,61 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+3 0 obj
+<< /Length 691 >>
+stream
+BT
+/F2 14 Tf
+1 0 0 1 50 800 Tm (CityCare Diagnostics \(DEMO - fictional sample\)) Tj
+/F1 10.5 Tf
+1 0 0 1 50 778 Tm (Patient: Sample Person    Date: 25/09/2026) Tj
+/F1 10.5 Tf
+1 0 0 1 50 763 Tm (Test Result Unit Reference Range) Tj
+/F1 10.5 Tf
+1 0 0 1 50 748 Tm (HbA1c 6.9 % 4.0 - 5.6) Tj
+/F1 10.5 Tf
+1 0 0 1 50 733 Tm (Fasting Blood Glucose 126 mg/dL 70 - 99) Tj
+/F1 10.5 Tf
+1 0 0 1 50 718 Tm (Total Cholesterol 182 mg/dL < 200) Tj
+/F1 10.5 Tf
+1 0 0 1 50 703 Tm (LDL Cholesterol 104 mg/dL < 100) Tj
+/F1 10.5 Tf
+1 0 0 1 50 688 Tm (HDL Cholesterol 48 mg/dL > 40) Tj
+/F1 10.5 Tf
+1 0 0 1 50 673 Tm (Creatinine 0.9 mg/dL 0.6 - 1.2) Tj
+/F1 10.5 Tf
+1 0 0 1 50 658 Tm (TSH 2.2 mIU/L 0.4 - 4.0) Tj
+ET
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 5 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+5 0 obj
+<< /Type /Pages /Kids [4 0 R] /Count 1 >>
+endobj
+6 0 obj
+<< /Title (Sample lab report) /Producer (Kinwell demo) >>
+endobj
+7 0 obj
+<< /Type /Catalog /Pages 5 0 R >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000079 00000 n 
+0000000154 00000 n 
+0000000896 00000 n 
+0000001032 00000 n 
+0000001089 00000 n 
+0000001162 00000 n 
+trailer
+<< /Size 8 /Root 7 0 R /Info 6 0 R >>
+startxref
+1211
+%%EOF
