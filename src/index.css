@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Colour tokens as RGB triplets so Tailwind can apply opacity (bg-accent/20). */
+:root {
+  --bg: 233 239 236; --surface: 255 255 255; --surface-2: 244 248 246; --ink: 26 39 36; --muted: 90 107 102; --line: 211 222 218;
+  --accent: 28 106 92; --accent-ink: 255 255 255; --accent-soft: 214 234 228;
+  --warm: 184 116 18; --warm-soft: 251 235 205;
+  --good: 43 122 75; --good-soft: 220 239 226; --bad: 176 65 43; --bad-soft: 247 222 215; --same: 90 107 102; --same-soft: 231 236 234;
+  --me: 227 238 248; --wa-bar: 31 94 82; --wa-bg: 232 226 214; --wa-me: 215 241 201; --wa-them: 255 255 255; --wa-green: 46 155 98;
+  --call-bg: 16 32 28;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: 14 21 19; --surface: 23 33 30; --surface-2: 28 40 36; --ink: 229 238 234; --muted: 155 172 167; --line: 43 56 52;
+    --accent: 99 195 173; --accent-ink: 14 26 23; --accent-soft: 30 58 51;
+    --warm: 237 179 82; --warm-soft: 58 46 23;
+    --good: 113 199 147; --good-soft: 28 51 37; --bad: 234 129 105; --bad-soft: 61 34 28; --same: 155 172 167; --same-soft: 37 48 45;
+    --me: 31 46 61; --wa-bar: 23 63 55; --wa-bg: 18 26 24; --wa-me: 36 69 47; --wa-them: 30 42 39; --wa-green: 61 184 118;
+    --call-bg: 8 18 16;
+    color-scheme: dark;
+  }
+}
+
+html, body, #root { height: 100%; }
+body {
+  @apply bg-bg text-ink font-body antialiased;
+  font-size: 17px;
+  line-height: 1.45;
+}
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 3px solid rgb(var(--warm)); outline-offset: 2px; }
+h1, h2, h3 { text-wrap: balance; }
+
+@layer components {
+  .cap { @apply text-[13px] font-bold uppercase tracking-[0.06em] text-muted; }
+  .panel { @apply rounded-[18px] border border-line bg-surface px-3.5 py-3; }
+  .sec-title { @apply font-display text-xl font-semibold; }
+  .chip { @apply min-h-[44px] rounded-full border-[1.5px] border-accent bg-surface px-4 py-2 text-base font-bold text-accent hover:bg-accent-soft; }
+  .btn { @apply min-h-[44px] rounded-full bg-accent px-5 py-2.5 font-bold text-accent-ink disabled:opacity-50; }
+  .btn-ghost { @apply min-h-[44px] rounded-full border-[1.5px] border-accent bg-surface px-5 py-2.5 font-bold text-accent; }
+  .field-input { @apply w-full min-w-0 rounded-xl border border-line bg-surface2 px-3 py-2.5 text-ink; }
+  .badge { @apply inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-bold; }
+  .tone-good { @apply bg-good-soft text-good; }
+  .tone-warn { @apply bg-warm-soft text-warm; }
+  .tone-bad { @apply bg-bad-soft text-bad; }
+  .tone-same { @apply bg-same-soft text-same; }
+  .tone-acc { @apply bg-accent-soft text-accent; }
+  .rich b, .rich strong { font-weight: 700; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

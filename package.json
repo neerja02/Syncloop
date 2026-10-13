@@ -1,0 +1,38 @@
+{
+  "name": "sister-asha",
+  "version": "0.1.0",
+  "description": "Sister Asha: an AI health nurse for elderly people. Live Hinglish voice check-ins (ElevenLabs), medicine tracking, readings and family alerts.",
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:web": "vite",
+    "dev:api": "tsx watch server/index.ts",
+    "build": "tsc -b && vite build",
+    "start": "tsx server/index.ts",
+    "preview": "npm run build && npm start",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@elevenlabs/react": "^1.16.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.15.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.4.1",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.1.2",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  },
+  "private": true,
+  "type": "module"
+}
