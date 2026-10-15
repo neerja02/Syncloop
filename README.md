@@ -54,6 +54,8 @@ Other things to try: the camera button reads a new prescription (simulated) and 
 
 ## Accounts
 
+- **Demo build:** `VITE_DEMO_MODE=1 npm run build` makes a copy that runs without the server (for a shareable demo page). Sign up and log in then work inside that browser only, and Google sign-in is turned off.
+
 - **Continue with Google** works once `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are in `.env`. In Google Cloud Console, create an OAuth client of type *Web application* and add `http://localhost:5173/api/auth/google/callback` as an Authorized redirect URI (for `npm start`, also `http://localhost:8787/api/auth/google/callback`). A Google sign-in with the same email as an existing account logs into that account.
 
 - Accounts are stored by the API server in `server/data/users.json` (not committed). Passwords are hashed with scrypt; the session is a signed, HTTP-only cookie that lasts 30 days.

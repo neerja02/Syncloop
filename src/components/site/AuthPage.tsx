@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useAuth } from "../../auth/auth";
+import { DEMO, useAuth } from "../../auth/auth";
 import { go } from "../../auth/route";
 import { Avatar } from "../ui/ui";
 
@@ -42,7 +42,13 @@ export function AuthPage({ mode }: { mode: "login" | "signup" }) {
           {isSignup ? "Set up Sister Nia for your parents or grandparents. It takes about five minutes." : "Log in to see today's medicines, readings and Nia's check-ins."}
         </p>
 
-        <a href="/api/auth/google" className="mt-6 flex min-h-[48px] w-full items-center justify-center gap-3 rounded-full border-[1.5px] border-line bg-surface px-5 py-2.5 font-bold text-ink hover:bg-surface2">
+        {DEMO && (
+          <p className="mt-5 rounded-2xl bg-warm-soft px-4 py-3 text-[15px] text-ink">
+            <b>Demo version.</b> Accounts and health records stay in this browser only. Continue with Google works in the full app.
+          </p>
+        )}
+
+        <a href="/api/auth/google" onClick={(e) => { if (DEMO) { e.preventDefault(); setError("Google sign-in works in the full app, not in this demo. Sign up with email instead."); } }} className="mt-6 flex min-h-[48px] w-full items-center justify-center gap-3 rounded-full border-[1.5px] border-line bg-surface px-5 py-2.5 font-bold text-ink hover:bg-surface2">
           <GoogleG />
           {isSignup ? "Sign up with Google" : "Continue with Google"}
         </a>
