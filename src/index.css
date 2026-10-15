@@ -2,24 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Colour tokens as RGB triplets so Tailwind can apply opacity (bg-accent/20). */
+/* Colour tokens as RGB triplets so Tailwind can apply opacity (bg-accent/20).
+   Fresh leaf green on near-white, soft shadows instead of outlines. */
 :root {
-  --bg: 233 239 236; --surface: 255 255 255; --surface-2: 244 248 246; --ink: 26 39 36; --muted: 90 107 102; --line: 211 222 218;
-  --accent: 28 106 92; --accent-ink: 255 255 255; --accent-soft: 214 234 228;
-  --warm: 184 116 18; --warm-soft: 251 235 205;
-  --good: 43 122 75; --good-soft: 220 239 226; --bad: 176 65 43; --bad-soft: 247 222 215; --same: 90 107 102; --same-soft: 231 236 234;
-  --me: 227 238 248; --wa-bar: 31 94 82; --wa-bg: 232 226 214; --wa-me: 215 241 201; --wa-them: 255 255 255; --wa-green: 46 155 98;
-  --call-bg: 16 32 28;
+  --bg: 244 246 243; --surface: 255 255 255; --surface-2: 247 249 246; --ink: 27 32 29; --muted: 104 113 108; --line: 230 234 229;
+  --accent: 44 128 82; --accent-ink: 255 255 255; --accent-soft: 225 242 231;
+  --warm: 176 112 14; --warm-soft: 252 238 206;
+  --good: 37 122 72; --good-soft: 222 241 228; --bad: 190 64 42; --bad-soft: 250 228 221; --same: 104 113 108; --same-soft: 236 239 236;
+  --me: 228 240 233; --wa-bar: 31 94 70; --wa-bg: 236 231 220; --wa-me: 215 241 201; --wa-them: 255 255 255; --wa-green: 46 155 98;
+  --call-bg: 16 34 26; --shadow: 24 44 32;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: 14 21 19; --surface: 23 33 30; --surface-2: 28 40 36; --ink: 229 238 234; --muted: 155 172 167; --line: 43 56 52;
-    --accent: 99 195 173; --accent-ink: 14 26 23; --accent-soft: 30 58 51;
-    --warm: 237 179 82; --warm-soft: 58 46 23;
-    --good: 113 199 147; --good-soft: 28 51 37; --bad: 234 129 105; --bad-soft: 61 34 28; --same: 155 172 167; --same-soft: 37 48 45;
-    --me: 31 46 61; --wa-bar: 23 63 55; --wa-bg: 18 26 24; --wa-me: 36 69 47; --wa-them: 30 42 39; --wa-green: 61 184 118;
-    --call-bg: 8 18 16;
+    --bg: 15 19 17; --surface: 25 31 28; --surface-2: 21 27 24; --ink: 232 238 234; --muted: 156 168 161; --line: 42 51 46;
+    --accent: 111 207 151; --accent-ink: 12 30 20; --accent-soft: 30 58 42;
+    --warm: 240 184 90; --warm-soft: 60 47 22;
+    --good: 116 204 150; --good-soft: 28 52 38; --bad: 238 132 108; --bad-soft: 64 34 28; --same: 156 168 161; --same-soft: 38 46 42;
+    --me: 30 52 40; --wa-bar: 23 63 50; --wa-bg: 18 24 21; --wa-me: 36 69 47; --wa-them: 30 40 35; --wa-green: 61 184 118;
+    --call-bg: 8 16 12; --shadow: 0 0 0;
     color-scheme: dark;
   }
 }
@@ -36,14 +37,14 @@ button:disabled { cursor: not-allowed; }
 h1, h2, h3 { text-wrap: balance; }
 
 @layer components {
-  .cap { @apply text-[13px] font-bold uppercase tracking-[0.06em] text-muted; }
-  .panel { @apply rounded-[18px] border border-line bg-surface px-3.5 py-3; }
-  .sec-title { @apply font-display text-xl font-semibold; }
-  .chip { @apply min-h-[44px] rounded-full border-[1.5px] border-accent bg-surface px-4 py-2 text-base font-bold text-accent hover:bg-accent-soft; }
-  .btn { @apply min-h-[44px] rounded-full bg-accent px-5 py-2.5 font-bold text-accent-ink disabled:opacity-50; }
-  .btn-ghost { @apply min-h-[44px] rounded-full border-[1.5px] border-accent bg-surface px-5 py-2.5 font-bold text-accent; }
-  .field-input { @apply w-full min-w-0 rounded-xl border border-line bg-surface2 px-3 py-2.5 text-ink; }
-  .badge { @apply inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-bold; }
+  .cap { @apply text-[12px] font-medium uppercase tracking-[0.1em] text-muted; }
+  .panel { @apply rounded-3xl bg-surface px-4 py-3.5 shadow-card; }
+  .sec-title { @apply font-display text-[22px] font-semibold tracking-[-0.01em]; }
+  .chip { @apply min-h-[44px] rounded-full bg-accent-soft px-4 py-2 text-base font-medium text-accent hover:bg-accent hover:text-accent-ink; }
+  .btn { @apply min-h-[48px] rounded-full bg-accent px-6 py-2.5 font-medium text-accent-ink hover:brightness-110 disabled:opacity-50; }
+  .btn-ghost { @apply min-h-[48px] rounded-full border-[1.5px] border-line bg-surface px-6 py-2.5 font-medium text-ink hover:border-accent hover:text-accent; }
+  .field-input { @apply w-full min-w-0 rounded-2xl border border-transparent bg-surface2 px-4 py-3 text-ink outline-none focus:border-accent focus:bg-surface; }
+  .badge { @apply inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium; }
   .tone-good { @apply bg-good-soft text-good; }
   .tone-warn { @apply bg-warm-soft text-warm; }
   .tone-bad { @apply bg-bad-soft text-bad; }

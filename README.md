@@ -14,6 +14,8 @@ npm run dev                 # app on http://localhost:5173, API on :8787
 
 Open http://localhost:5173 in **Chrome or Edge**, and allow the microphone when the call starts.
 
+The first page is the Sister Nia website. Use **Sign up** to create a family account (or **Log in**), and the app opens. **Log out** is at the top of the app and in the **Profile** tab.
+
 To run the production build on a single port: `npm run build && npm start`, then open http://localhost:8787.
 
 ### `.env`
@@ -24,6 +26,7 @@ To run the production build on a single port: `npm run build && npm start`, then
 | `ELEVENLABS_AGENT_ID` | The "Sister Nia – Elderly Care Nurse" agent: `agent_8401m4vje8w3fdjajg1v11y7z1ef` |
 | `ELEVENLABS_VOICE_ID` | Optional. Voice for the practice call, default Zara (`OtEfb2LVzIE45wdYe54M`), the same as the agent |
 | `PORT` | API port, default 8787 |
+| `SESSION_SECRET` | Optional. Signs the login cookie. If empty, one is generated once and kept in `server/data/session-secret`. |
 | `TWILIO_*` | Optional. Lets the SOS button place real calls and WhatsApp messages. See *How the SOS button works*. |
 
 Without a key, the live call still works: the app connects to the public Nia agent directly by its ID (in Zara's voice). The agent has no sign-in, so anyone with its ID can use your ElevenLabs credits; turn on **Security → Enable authentication** for the agent before sharing the app widely, and run the server with your key.
@@ -44,9 +47,19 @@ If the microphone isn't available, the call screen offers a scripted **practice 
 7. **High reading.** Enter 174/106. Nia stays calm, gives safe steps, and alerts the family.
 8. **+ Add family member** → **Fill sample: Kamla ji**. One nurse for the family, each person with their own history.
 9. **SOS.** Tap the red **SOS** button at the top. After a 5-second countdown (with a big **Cancel, I'm OK**), Nia calls and WhatsApps the emergency contacts with the person's location. Saying "seene mein dard" in chat opens the same screen. Emergency contacts are edited in **Profile → Emergency contacts** (or in the profile setup).
-10. **Upload.** In **Talk**, use the camera to take a photo, or the paperclip to upload a photo or PDF. Nia asks whether it's a prescription or a test report, then files it.
+10. **Upload.** In the **Nia** tab, tap **+** in the message box: take a photo, pick one from the gallery, or upload a PDF. Nia asks whether it's a prescription or a test report, then files it. The same menu can open a reading card (BP, sugar, weight).
+11. **Easier to read.** Use **A−** / **A+** at the top of the **Nia** tab to change the text size (saved per account). Tap the speaker under any of Nia's messages to hear it read aloud.
 
 Other things to try: the camera button reads a new prescription (simulated) and adds a medicine. Typing "kya main ek aur BP ki goli le sakta hoon" gets a double-dose warning, and "paracetamol le sakta hoon?" gets a polite refusal plus an offer to ask the doctor through family.
+
+## Accounts
+
+- **Continue with Google** works once `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are in `.env`. In Google Cloud Console, create an OAuth client of type *Web application* and add `http://localhost:5173/api/auth/google/callback` as an Authorized redirect URI (for `npm start`, also `http://localhost:8787/api/auth/google/callback`). A Google sign-in with the same email as an existing account logs into that account.
+
+- Accounts are stored by the API server in `server/data/users.json` (not committed). Passwords are hashed with scrypt; the session is a signed, HTTP-only cookie that lasts 30 days.
+- Routes: `POST /api/auth/signup`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`. Failed logins are limited to 10 per address every 10 minutes.
+- The voice (`/api/asha/signed-url`, `/api/tts`) and SOS (`/api/emergency`) routes need a signed-in user, so strangers can't use your ElevenLabs or Twilio credits through the server.
+- Profiles, medicines and readings are still saved in the browser, under a separate key for each account (`sister-asha-v1:<user id>`). Data saved before accounts existed moves to the first account that logs in on that browser.
 
 ## How the live call works
 

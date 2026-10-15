@@ -97,10 +97,20 @@ let audio: HTMLAudioElement | null = null;
 let serverVoice: boolean | null = null; // null = not tried yet
 let speakId = 0;
 
+/** Called once when the current line finishes or is stopped (used by the read-aloud buttons). */
+let onDone: (() => void) | null = null;
+const done = (id: number) => {
+  if (id !== speakId) return;
+  const f = onDone;
+  onDone = null;
+  f?.();
+};
+
 /** Speaks a line: Nia's real voice (Zara, via /api/tts) if the server has a key, otherwise the browser's voice. */
-export async function speak(say: string, show: string, pick?: string) {
+export async function speak(say: string, show: string, pick?: string, onEnd?: () => void) {
   stopSpeaking();
   const id = speakId;
+  onDone = onEnd ?? null;
   if (serverVoice !== false) {
     try {
       const r = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: say }) });
@@ -109,7 +119,7 @@ export async function speak(say: string, show: string, pick?: string) {
       if (id !== speakId) return;
       serverVoice = true;
       audio = new Audio(url);
-      audio.onended = () => URL.revokeObjectURL(url);
+      audio.onended = () => { URL.revokeObjectURL(url); done(id); };
       await audio.play();
       return;
     } catch {
@@ -117,16 +127,16 @@ export async function speak(say: string, show: string, pick?: string) {
       if (id !== speakId) return;
     }
   }
-  browserSpeak(say, show, pick);
+  browserSpeak(say, show, pick, () => done(id));
 }
 
 /** True once Nia's real voice has played in this page. */
 export const usingNiaVoice = () => serverVoice === true;
 
-function browserSpeak(say: string, show: string, pick?: string) {
+function browserSpeak(say: string, show: string, pick?: string, onEnd?: () => void) {
   try {
     const s = window.speechSynthesis;
-    if (!s) return;
+    if (!s) return onEnd?.();
     s.cancel();
     const v = bestVoice(pick);
     const hindi = !!v && /^hi/i.test(v.lang);
@@ -134,11 +144,13 @@ function browserSpeak(say: string, show: string, pick?: string) {
     if (v) { u.voice = v; u.lang = v.lang; } else u.lang = "hi-IN";
     u.rate = 0.9;
     u.pitch = 1.08;
+    if (onEnd) u.onend = u.onerror = () => onEnd();
     s.speak(u);
-  } catch { /* captions still show */ }
+  } catch { onEnd?.(); /* captions still show */ }
 }
 
 export function stopSpeaking() {
+  done(speakId);
   speakId++;
   try { audio?.pause(); } catch { /* ignore */ }
   audio = null;

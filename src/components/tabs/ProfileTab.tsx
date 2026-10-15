@@ -1,3 +1,5 @@
+import { useAuth } from "../../auth/auth";
+import { go } from "../../auth/route";
 import { FREQ_ORDER } from "../../domain/catalog";
 import { visitText } from "../../domain/health";
 import { useStore } from "../../store/useStore";
@@ -19,6 +21,7 @@ export function ProfileTab() {
   const openOnboarding = useStore((s) => s.openOnboarding);
   const mutate = useStore((s) => s.mutate);
   const openSos = useStore((s) => s.openSos);
+  const { user, logout } = useAuth();
   if (!p) return null;
   const pr = p.pr;
   const groups = FREQ_ORDER.map((f) => [f, p.plan.filter((r) => r.freq === f)] as const).filter(([, rs]) => rs.length);
@@ -87,6 +90,15 @@ export function ProfileTab() {
           {pr.checkin.alerts.map((a, i) => <Row key={a} first={i === 0} title={ALERTS[a]} right={<Badge tone="warn">Alert</Badge>} />)}
           <Row first={!pr.checkin.alerts.length} title="Emergency words (chest pain, fall, breathless)" right={<Badge tone="bad">Call now</Badge>} />
         </div>
+      </section>
+
+      <section className="mb-6 flex flex-col gap-3" aria-labelledby="acct-title">
+        <h2 id="acct-title" className="sec-title">Your account</h2>
+        <div className="panel">
+          <Row first title={user?.name ?? ""} sub={user?.email} />
+        </div>
+        <p className="-mt-1 text-sm text-muted">Profiles and readings are saved in this browser for your account. Log in here again to see them.</p>
+        <button className="btn-ghost self-start" onClick={async () => { await logout(); go("home"); }}>Log out</button>
       </section>
     </div>
   );

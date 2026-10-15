@@ -1,5 +1,5 @@
 import { isBusy, startDayIfNeeded, testHighReading } from "../../agent/flows";
-import { useStore } from "../../store/useStore";
+import { dataKey, useStore } from "../../store/useStore";
 import { waDaily, waDoctor } from "../sim/WhatsAppScreen";
 import { Icon } from "../ui/ui";
 
@@ -20,7 +20,7 @@ export function TestRail() {
   const run = (k: (typeof ITEMS)[number]["k"]) => {
     if (k === "reset") {
       if (overlay === "call") return;
-      try { localStorage.removeItem("sister-asha-v1"); } catch { /* ignore */ }
+      try { localStorage.removeItem(dataKey()); } catch { /* ignore */ }
       reset();
       return;
     }
@@ -47,7 +47,7 @@ export function TestRail() {
           key={it.k}
           onClick={() => run(it.k)}
           disabled={it.k !== "reset" && !ready}
-          className="flex flex-col items-center gap-1.5 rounded-[18px] border border-line bg-surface px-1.5 pb-2 pt-2.5 text-center text-xs leading-tight hover:border-accent disabled:opacity-45 max-[620px]:min-w-[84px]"
+          className="flex flex-col items-center gap-1.5 rounded-3xl bg-surface shadow-card px-1.5 pb-2 pt-2.5 text-center text-xs leading-tight hover:border-accent disabled:opacity-45 max-[620px]:min-w-[84px]"
         >
           <span className={`grid h-[42px] w-[42px] place-items-center rounded-full p-2.5 ${it.tone}`}>{it.icon}</span>
           {it.label}

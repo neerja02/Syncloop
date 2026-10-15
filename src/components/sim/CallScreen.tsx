@@ -33,7 +33,7 @@ function RoundBtn({ kind, label, onClick, size = 68 }: { kind: "ok" | "no" | "ne
   );
 }
 
-/** Wraps up any call: chat note, transcript, back to the Talk tab. */
+/** Wraps up any call: chat note, transcript, back to the Nia tab. */
 function finishCall(personId: string, kind: CallKind, mins: number, events: ToolEvent[], lines: Line[], live: boolean) {
   const s = getState();
   const label = kind === "weekly" ? "Weekly health check call" : "Check-in call";

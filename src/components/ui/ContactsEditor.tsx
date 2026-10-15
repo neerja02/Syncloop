@@ -6,7 +6,7 @@ export function ContactsEditor({ value, onChange, idPrefix }: { value: Contact[]
   return (
     <div className="flex flex-col gap-2.5">
       {value.map((c, i) => (
-        <div key={i} className="flex flex-col gap-2 rounded-2xl border border-line bg-surface p-3">
+        <div key={i} className="flex flex-col gap-2 rounded-3xl bg-surface shadow-card p-3">
           <div className="flex items-center justify-between">
             <span className="cap">Contact {i + 1}{i === 0 ? " · called first" : ""}</span>
             <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="text-sm font-bold text-bad">Remove</button>

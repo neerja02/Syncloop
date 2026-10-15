@@ -28,7 +28,7 @@ export function HealthTab() {
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           {st.map((s) => (
-            <div key={s.k} className="flex min-w-0 flex-col gap-1 rounded-2xl border border-line bg-surface px-3 py-2.5">
+            <div key={s.k} className="flex min-w-0 flex-col gap-1 rounded-3xl bg-surface shadow-card px-3 py-2.5">
               <span className="font-bold">{s.k}</span>
               <span><Badge tone={s.s}>{s.t}</Badge></span>
               <span className="text-[13px] text-muted">{s.d}</span>
@@ -40,7 +40,7 @@ export function HealthTab() {
       {p.weekly.length > 0 && (
         <Sec title="Weekly health checks">
           {[...p.weekly].reverse().map((w, i) => (
-            <details key={i} open={i === 0} className="rounded-2xl border border-line bg-surface px-3.5">
+            <details key={i} open={i === 0} className="rounded-3xl bg-surface shadow-card px-3.5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-2.5 py-3">
                 <span><strong className="block">{w.date}</strong><span className="text-sm text-muted">{w.verdict}</span></span>
                 <Badge tone={w.verdict.startsWith("Better") ? "good" : w.verdict.startsWith("Needs") ? "warn" : "same"}>{w.verdict.split(" ")[0]}</Badge>
@@ -109,7 +109,7 @@ export function HealthTab() {
         {[...new Set(p.pr.meds.map((m) => m.dr))].map((dr) => {
           const ms = p.pr.meds.filter((m) => m.dr === dr);
           return (
-            <details key={dr} className="rounded-2xl border border-line bg-surface px-3.5">
+            <details key={dr} className="rounded-3xl bg-surface shadow-card px-3.5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-2.5 py-3">
                 <span><strong className="block">{dr || "Doctor"}</strong><span className="text-sm text-muted">{p.pr.doctors.find((d) => d.name === dr)?.sp}</span></span>
                 <Badge>{ms.length} medicine{ms.length > 1 ? "s" : ""}</Badge>
@@ -129,7 +129,7 @@ export function HealthTab() {
       {p.reports.length > 0 && (
         <Sec title="Reports">
           {p.reports.map((r, i) => (
-            <details key={i} className="rounded-2xl border border-line bg-surface px-3.5">
+            <details key={i} className="rounded-3xl bg-surface shadow-card px-3.5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-2.5 py-3">
                 <span><strong className="block">{r.name}</strong><span className="text-sm text-muted">{r.lab} · {r.date}</span></span>
               </summary>
@@ -148,7 +148,7 @@ export function HealthTab() {
       {p.transcripts.length > 0 && (
         <Sec title="Call transcripts" sub="Saved from live calls with Nia.">
           {[...p.transcripts].reverse().slice(0, 5).map((t, i) => (
-            <details key={i} className="rounded-2xl border border-line bg-surface px-3.5">
+            <details key={i} className="rounded-3xl bg-surface shadow-card px-3.5">
               <summary className="cursor-pointer list-none py-3"><strong>{t.kind}</strong> <span className="text-sm text-muted">· {shortDate(baseDate, t.day)} · {t.lines.length} lines</span></summary>
               <div className="flex flex-col gap-1.5 pb-3 text-[15px]">
                 {t.lines.map((l, k) => <p key={k}><b>{l.who === "asha" ? "Nia" : p.pr.first}:</b> {l.text}</p>)}

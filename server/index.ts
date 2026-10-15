@@ -3,11 +3,15 @@ import express from "express";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { authRouter, googleEnabled, requireAuth } from "./auth";
 
 const app = express();
 const PORT = Number(process.env.PORT || 8787);
 const API_KEY = process.env.ELEVENLABS_API_KEY || "";
 const AGENT_ID = process.env.ELEVENLABS_AGENT_ID || "agent_8401m4vje8w3fdjajg1v11y7z1ef";
+
+// Accounts: sign up, log in, log out. The voice and SOS routes below need a signed-in user.
+app.use("/api/auth", authRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, voice: API_KEY ? "ready" : "missing ELEVENLABS_API_KEY", agentId: AGENT_ID });
@@ -17,7 +21,7 @@ app.get("/api/health", (_req, res) => {
  * Returns a short-lived signed URL for a live voice conversation with Nia.
  * The ElevenLabs API key stays here on the server and never reaches the browser.
  */
-app.get("/api/asha/signed-url", async (_req, res) => {
+app.get("/api/asha/signed-url", requireAuth, async (_req, res) => {
   if (!API_KEY) {
     res.status(500).json({ error: "ELEVENLABS_API_KEY is not set. Add it to the .env file and restart." });
     return;
@@ -41,7 +45,7 @@ app.get("/api/asha/signed-url", async (_req, res) => {
  * The browser's built-in voice is only used when this isn't available.
  */
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "OtEfb2LVzIE45wdYe54M";
-app.post("/api/tts", express.json({ limit: "8kb" }), async (req, res) => {
+app.post("/api/tts", requireAuth, express.json({ limit: "8kb" }), async (req, res) => {
   const text = String((req.body as { text?: string })?.text || "").slice(0, 600);
   if (!API_KEY || !text.trim()) {
     res.status(API_KEY ? 400 : 503).json({ error: API_KEY ? "No text" : "ELEVENLABS_API_KEY is not set" });
@@ -96,7 +100,7 @@ const sosTimes: number[] = [];
 
 app.get("/api/emergency/status", (_req, res) => res.json({ call: canCall, whatsapp: canWhatsApp }));
 
-app.post("/api/emergency", express.json({ limit: "20kb" }), async (req, res) => {
+app.post("/api/emergency", requireAuth, express.json({ limit: "20kb" }), async (req, res) => {
   const now = Date.now();
   while (sosTimes.length && now - sosTimes[0] > 10 * 60_000) sosTimes.shift();
   if (sosTimes.length >= 5) {
@@ -136,6 +140,7 @@ if (existsSync(dist)) {
 
 app.listen(PORT, () => {
   console.log(`SOS: calls ${canCall ? "via Twilio" : "open the phone dialer (add TWILIO_* to .env for automatic calls)"}, WhatsApp ${canWhatsApp ? "via Twilio" : "opens WhatsApp"}`);
+  console.log(`Google sign-in: ${googleEnabled ? "on" : "off (add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env)"}`);
   console.log(`Sister Nia API on http://localhost:${PORT}  (voice: ${API_KEY ? "ready" : "add ELEVENLABS_API_KEY to .env"})`);
   if (existsSync(dist)) console.log(`Serving the app at http://localhost:${PORT}`);
 });

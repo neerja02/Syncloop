@@ -3,6 +3,7 @@ import { buildPlan, CONDITIONS, FREQ_ORDER, SLOTS } from "../../domain/catalog";
 import { visitText } from "../../domain/health";
 import { EMPTY_PROFILE, sampleProfile } from "../../domain/samples";
 import type { AlertKey, Channel, Profile, Slot } from "../../domain/types";
+import { useAuth } from "../../auth/auth";
 import { useStore } from "../../store/useStore";
 import { Avatar, ChannelBadge, Icon } from "../ui/ui";
 import { ContactsEditor } from "../ui/ContactsEditor";
@@ -43,7 +44,14 @@ export function Wizard() {
   const { people, obEdit, baseDate, addPerson, saveProfile, setOverlay, showToast } = useStore();
   const [step, setStep] = useState(0);
   const [err, setErr] = useState("");
-  const [d, setD] = useState<Profile>(() => structuredClone(obEdit === null ? EMPTY_PROFILE : people[obEdit].pr));
+  const account = useAuth((s) => s.user);
+  const [d, setD] = useState<Profile>(() => {
+    if (obEdit !== null) return structuredClone(people[obEdit].pr);
+    // The person who signed up is usually the family contact, so start with their name.
+    const pr = structuredClone(EMPTY_PROFILE);
+    pr.cg.name = account?.name.trim().split(" ")[0] ?? "";
+    return pr;
+  });
   const body = useRef<HTMLDivElement>(null);
   const up = (fn: (x: Profile) => void) => setD((prev) => { const n = structuredClone(prev); fn(n); return n; });
 
@@ -143,7 +151,7 @@ export function Wizard() {
             </button>
             <p className="cap">Doctors</p>
             {d.doctors.map((_dc, i) => (
-              <div key={i} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-surface2 p-3">
+              <div key={i} className="flex flex-col gap-2.5 rounded-3xl bg-surface2 p-4">
                 <div className="grid grid-cols-2 gap-2.5">
                   {input(`f-doc-${i}`, "Doctor", (x) => x.doctors[i].name, (x, v) => (x.doctors[i].name = v))}
                   {input(`f-docsp-${i}`, "For", (x) => x.doctors[i].sp, (x, v) => (x.doctors[i].sp = v))}
@@ -159,7 +167,7 @@ export function Wizard() {
             <button type="button" className="self-start font-bold text-accent" onClick={() => up((x) => void x.doctors.push({ name: "", sp: "", date: "", time: "", tests: "" }))}>+ Add doctor</button>
             <p className="cap">Medicines</p>
             {d.meds.map((m, i) => (
-              <div key={i} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-surface2 p-3">
+              <div key={i} className="flex flex-col gap-2.5 rounded-3xl bg-surface2 p-4">
                 <div className="grid grid-cols-2 gap-2.5">
                   {input(`f-med-${i}`, "Medicine", (x) => x.meds[i].name, (x, v) => (x.meds[i].name = v))}
                   {input(`f-dose-${i}`, "Dose", (x) => x.meds[i].dose, (x, v) => (x.meds[i].dose = v))}

@@ -7,7 +7,8 @@ const STEPS = [
   ["Weekly check and doctor visit", "A health check call, and a reminder with the tests and papers to carry."],
   ["High reading", "Enter a high BP, or say 'seene mein dard' on the call. Nia stays calm and alerts the daughter."],
   ["SOS button", "Tap the red SOS at the top. After a 5-second countdown, Nia calls and WhatsApps the emergency contacts with the location. Edit contacts in the Profile tab."],
-  ["Upload a report", "Use the camera or the paperclip in Talk to send a prescription or test report. Nia asks what it is and files it."],
+  ["Bigger text, read aloud", "Use A− and A+ at the top of the Nia tab to change the text size. Tap the speaker under any of Nia's messages to hear it."],
+  ["Upload a report", "In the Nia tab, tap + in the message box to take a photo or upload a prescription or test report. Nia asks what it is and files it."],
 ];
 
 export function Guide() {
@@ -46,7 +47,7 @@ export function Guide() {
         </div>
       </div>
       <p className="text-[13px] text-muted">
-        Calls use a live ElevenLabs voice agent through the microphone (an offline scripted call is the fallback). Reading prescriptions and reports is simulated with sample patients. The SOS button places real calls and WhatsApp messages when Twilio is set up on the server, and otherwise opens the phone's dialer and WhatsApp. Data stays in this browser.
+        Calls use a live ElevenLabs voice agent through the microphone (an offline scripted call is the fallback). Reading prescriptions and reports is simulated with sample patients. The SOS button places real calls and WhatsApp messages when Twilio is set up on the server, and otherwise opens the phone's dialer and WhatsApp. Profiles and readings are saved in this browser, separately for each account.
       </p>
     </aside>
   );

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { buildPlan } from "../domain/catalog";
 import { isoToday } from "../domain/dates";
 import { buildDoses, makePerson } from "../domain/samples";
@@ -7,6 +7,39 @@ import type { ChatItem, Chip, Person, Profile } from "../domain/types";
 
 export type Tab = "talk" | "today" | "health" | "profile";
 export type Overlay = null | "call" | "wa" | "ob" | "sos";
+
+/**
+ * Each account keeps its own family data in this browser, under "sister-asha-v1:<user id>".
+ * Nothing is read or written while nobody is signed in.
+ */
+const BASE_KEY = "sister-asha-v1";
+let userId: string | null = null;
+export const dataKey = (id = userId) => `${BASE_KEY}:${id}`;
+
+const userStorage = createJSONStorage(() => ({
+  getItem: (name: string) => {
+    if (!userId) return null;
+    try {
+      const own = localStorage.getItem(`${name}:${userId}`);
+      if (own !== null) return own;
+      // Data saved before accounts existed goes to the first account that signs in on this browser.
+      const legacy = localStorage.getItem(name);
+      if (legacy !== null) {
+        localStorage.setItem(`${name}:${userId}`, legacy);
+        localStorage.removeItem(name);
+      }
+      return legacy;
+    } catch { return null; }
+  },
+  setItem: (name: string, value: string) => {
+    if (!userId) return;
+    try { localStorage.setItem(`${name}:${userId}`, value); } catch { /* storage full or blocked */ }
+  },
+  removeItem: (name: string) => {
+    if (!userId) return;
+    try { localStorage.removeItem(`${name}:${userId}`); } catch { /* ignore */ }
+  },
+}));
 
 interface Toast { html: string; undo?: () => void; id: number }
 
@@ -19,6 +52,8 @@ interface State {
   overlay: Overlay;
   callKind: "daily" | "weekly";
   realVoice: boolean;
+  /** Chat text size for people with weak eyesight: 1 = normal. */
+  textScale: number;
   obEdit: number | null;
   typing: boolean;
   toast: Toast | null;
@@ -36,6 +71,7 @@ interface State {
   openCall: (kind: "daily" | "weekly") => void;
   openSos: () => void;
   setRealVoice: (v: boolean) => void;
+  setTextScale: (v: number) => void;
   openOnboarding: (edit: number | null) => void;
   addPerson: (pr: Profile) => void;
   saveProfile: (index: number, pr: Profile) => void;
@@ -55,6 +91,7 @@ export const useStore = create<State>()(
       overlay: "ob",
       callKind: "daily",
       realVoice: true,
+      textScale: 1,
       obEdit: null,
       typing: false,
       toast: null,
@@ -80,6 +117,7 @@ export const useStore = create<State>()(
       openCall: (callKind) => set({ overlay: "call", callKind }),
       openSos: () => set({ overlay: "sos" }),
       setRealVoice: (realVoice) => set({ realVoice }),
+      setTextScale: (textScale) => set({ textScale }),
       openOnboarding: (obEdit) => set({ overlay: "ob", obEdit }),
       addPerson: (pr) => set((s) => ({ people: [...s.people, makePerson(pr)], cur: s.people.length, overlay: null, tab: "talk" })),
       saveProfile: (index, pr) =>
@@ -101,14 +139,25 @@ export const useStore = create<State>()(
       reset: () => set({ baseDate: isoToday(), day: 0, people: [], cur: -1, tab: "talk", overlay: "ob", obEdit: null, typing: false, toast: null }),
     }),
     {
-      name: "sister-asha-v1",
-      partialize: (s) => ({ baseDate: s.baseDate, day: s.day, people: s.people, cur: s.cur, realVoice: s.realVoice }),
+      name: BASE_KEY,
+      storage: userStorage,
+      skipHydration: true,
+      partialize: (s) => ({ baseDate: s.baseDate, day: s.day, people: s.people, cur: s.cur, realVoice: s.realVoice, textScale: s.textScale }),
       onRehydrateStorage: () => (s) => {
         if (s && s.people.length) s.overlay = null;
       },
     },
   ),
 );
+
+/** Switches the app to this account's saved data (null when logging out). */
+export async function loadUserData(id: string | null) {
+  userId = null; // so clearing the screen doesn't overwrite anyone's saved data
+  useStore.getState().reset();
+  useStore.setState({ realVoice: true, textScale: 1 });
+  userId = id;
+  if (id) await useStore.persist.rehydrate();
+}
 
 export const getState = () => useStore.getState();
 export const cur = () => getState().current();

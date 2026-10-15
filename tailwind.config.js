@@ -16,14 +16,20 @@ export default {
         call: v("call-bg"),
       },
       fontFamily: {
-        display: ['"Literata"', "Georgia", "serif"],
-        body: ['"Atkinson Hyperlegible"', '"Segoe UI"', "system-ui", "sans-serif"],
+        // Outfit: a soft geometric face for headings. Lexend: geometric, built for easy reading.
+        display: ['"Outfit"', '"Avenir Next"', "system-ui", "sans-serif"],
+        body: ['"Lexend"', '"Segoe UI"', "system-ui", "sans-serif"],
       },
-      boxShadow: { phone: "0 20px 50px -24px rgb(20 45 40 / 0.45)" },
+      // Lexend reads heavy at 700, so "bold" text uses the 600 weight.
+      fontWeight: { bold: "600" },
+      boxShadow: {
+        phone: "0 1px 2px rgb(var(--shadow) / 0.04), 0 30px 60px -30px rgb(var(--shadow) / 0.28)",
+        card: "0 1px 2px rgb(var(--shadow) / 0.05), 0 10px 28px -14px rgb(var(--shadow) / 0.16)",
+      },
       keyframes: {
         dot: { "0%,80%,100%": { opacity: "0.25" }, "40%": { opacity: "1" } },
         rise: { from: { transform: "translateY(6px)", opacity: "0.3" }, to: { transform: "none", opacity: "1" } },
-        ring: { "0%": { boxShadow: "0 0 0 0 rgb(99 195 173 / 0.45)" }, "100%": { boxShadow: "0 0 0 22px rgb(99 195 173 / 0)" } },
+        ring: { "0%": { boxShadow: "0 0 0 0 rgb(111 207 151 / 0.45)" }, "100%": { boxShadow: "0 0 0 22px rgb(111 207 151 / 0)" } },
       },
       animation: { dot: "dot 1s infinite", rise: "rise .25s ease-out", ring: "ring 1.2s ease-out infinite" },
     },
